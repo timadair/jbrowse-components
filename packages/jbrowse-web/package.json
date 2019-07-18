@@ -19,6 +19,7 @@
     "@gmod/jbrowse-plugin-alignments": "^2.0.0",
     "@gmod/jbrowse-plugin-bed": "^2.0.0",
     "@gmod/jbrowse-plugin-config": "^2.0.0",
+    "@gmod/jbrowse-plugin-search-and-nav": "^2.0.0",
     "@gmod/jbrowse-plugin-data-management": "^2.0.0",
     "@gmod/jbrowse-plugin-filtering": "^2.0.0",
     "@gmod/jbrowse-plugin-jbrowse1": "^2.0.0",

@@ -2,6 +2,7 @@ import Alignments from '@gmod/jbrowse-plugin-alignments'
 import Bed from '@gmod/jbrowse-plugin-bed'
 import Config from '@gmod/jbrowse-plugin-config'
 import DataManagement from '@gmod/jbrowse-plugin-data-management'
+import Search from '@gmod/jbrowse-plugin-search-and-nav'
 import Filtering from '@gmod/jbrowse-plugin-filtering'
 import JBrowse1 from '@gmod/jbrowse-plugin-jbrowse1'
 import LinearGenomeView from '@gmod/jbrowse-plugin-linear-genome-view'
@@ -18,6 +19,7 @@ export default [
   Bed,
   Config,
   DataManagement,
+  Search,
   Filtering,
   JBrowse1,
   LinearGenomeView,

@@ -1,7 +1,7 @@
 {
-  "name": "search-drawer",
-  "version": "0.0.0",
-  "description": "> TODO: description",
+  "name": "@gmod/jbrowse-plugin-search-and-nav",
+  "version": "2.0.0",
+  "description": "A search and navigation widget",
   "author": "Colin <colin.diesh@gmail.com>",
   "homepage": "https://github.com/GMOD/jbrowse-components#readme",
   "license": "ISC",
