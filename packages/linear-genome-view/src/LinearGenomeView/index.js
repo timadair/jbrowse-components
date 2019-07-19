@@ -175,7 +175,7 @@ export function stateModelFactory(pluginManager) {
             target: self,
           })
         const selector = rootModel.drawerWidgets.get('searchAndNav')
-        selector.setView(self)
+        selector.setTarget(self)
         rootModel.showDrawerWidget(selector)
       },
 

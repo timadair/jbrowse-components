@@ -125,7 +125,7 @@ function LinearGenomeView(props) {
                 selected={
                   rootModel.visibleDrawerWidget &&
                   rootModel.visibleDrawerWidget.id === 'searchAndNav' &&
-                  rootModel.visibleDrawerWidget.view.id === model.id
+                  rootModel.visibleDrawerWidget.target.id === model.id
                 }
                 value="search_and_nav"
                 data-testid="search_and_nav"

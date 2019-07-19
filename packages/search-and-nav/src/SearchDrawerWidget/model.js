@@ -9,7 +9,7 @@ export default pluginManager =>
       target: types.reference(
         types.union(
           pluginManager.pluggableConfigSchemaType('track'),
-          pluginManager.pluggableConfigSchemaType('view'),
+          pluginManager.pluggableMstType('view', 'stateModel'),
         ),
       ),
     })
