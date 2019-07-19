@@ -1,11 +1,8 @@
-import FormGroup from '@material-ui/core/FormGroup'
-import FormLabel from '@material-ui/core/FormLabel'
+import TextField from '@material-ui/core/TextField'
 import { withStyles } from '@material-ui/core/styles'
 import { observer, PropTypes as MobxPropTypes } from 'mobx-react'
-import { getMembers } from 'mobx-state-tree'
 import propTypes from 'prop-types'
-import React, { Fragment } from 'react'
-import { iterMap } from '@gmod/jbrowse-core/util'
+import React, { useState } from 'react'
 
 const styles = theme => ({
   searchDrawer: {
@@ -18,7 +15,20 @@ const styles = theme => ({
 
 const Search = props => {
   const { classes, model } = props
-  return <p>Hello world</p>
+  const [search, setSearch] = useState()
+  const [locstring, setLocstring] = useState()
+  return (
+    <>
+      <TextField
+        label="Enter location string e.g. chr1:1..1000"
+        onChange={event => setLocstring(event.target.value)}
+      />
+      <TextField
+        label="Search for feature"
+        onChange={event => setSearch(event.target.value)}
+      />
+    </>
+  )
 }
 
 Search.propTypes = {
