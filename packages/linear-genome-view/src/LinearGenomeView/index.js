@@ -113,6 +113,12 @@ export function stateModelFactory(pluginManager) {
           horizontallyFlipped: self.horizontallyFlipped,
         }
       },
+      getIndex(refSeq) {
+        return self.displayedRegions.findIndex(r => {
+          console.log('getIndex', r, r.refName, refSeq)
+          return r.refName === refSeq
+        })
+      },
     }))
     .actions(self => ({
       setWidth(newWidth) {
@@ -235,6 +241,11 @@ export function stateModelFactory(pluginManager) {
           offset: Math.round(bp - bpSoFar),
           index: self.displayedRegions.length - 1,
         }
+      },
+
+      navTo({ refSeq, start, end }) {
+        const index = self.getIndex(refSeq)
+        self.moveTo({ index, offset: start }, { index, offset: end })
       },
 
       /**
