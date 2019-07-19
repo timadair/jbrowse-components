@@ -168,6 +168,17 @@ export function stateModelFactory(pluginManager) {
         self.displayRegionsFromAssemblyName = assemblyName
       },
 
+      activateSearch() {
+        const rootModel = getRoot(self)
+        if (!rootModel.drawerWidgets.get('searchAndNav'))
+          rootModel.addDrawerWidget('SearchDrawerWidget', 'searchAndNav', {
+            target: self,
+          })
+        const selector = rootModel.drawerWidgets.get('searchAndNav')
+        selector.setView(self)
+        rootModel.showDrawerWidget(selector)
+      },
+
       activateTrackSelector() {
         if (self.trackSelectorType === 'hierarchical') {
           const session = getSession(self)

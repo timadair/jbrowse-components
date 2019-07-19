@@ -115,9 +115,22 @@ function LinearGenomeView(props) {
                   session.visibleDrawerWidget.view.id === model.id
                 }
                 value="track_select"
-                data_testid="track_select"
+                data-testid="track_select"
               >
                 <Icon fontSize="small">line_style</Icon>
+              </ToggleButton>
+              <ToggleButton
+                title="search or navigate"
+                onClick={model.activateSearch}
+                selected={
+                  rootModel.visibleDrawerWidget &&
+                  rootModel.visibleDrawerWidget.id === 'searchAndNav' &&
+                  rootModel.visibleDrawerWidget.view.id === model.id
+                }
+                value="search_and_nav"
+                data-testid="search_and_nav"
+              >
+                <Icon fontSize="small">zoom_out</Icon>
               </ToggleButton>
             </>
           )}
