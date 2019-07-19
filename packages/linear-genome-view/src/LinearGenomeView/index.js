@@ -175,14 +175,16 @@ export function stateModelFactory(pluginManager) {
       },
 
       activateSearch() {
-        const rootModel = getRoot(self)
-        if (!rootModel.drawerWidgets.get('searchAndNav'))
-          rootModel.addDrawerWidget('SearchDrawerWidget', 'searchAndNav', {
+        const session = getSession(self)
+        const search = session.addDrawerWidget(
+          'SearchDrawerWidget',
+          'searchAndNav',
+          {
             target: self,
-          })
-        const selector = rootModel.drawerWidgets.get('searchAndNav')
-        selector.setTarget(self)
-        rootModel.showDrawerWidget(selector)
+          },
+        )
+        search.setTarget(self)
+        session.showDrawerWidget(search)
       },
 
       activateTrackSelector() {

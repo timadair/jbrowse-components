@@ -123,9 +123,9 @@ function LinearGenomeView(props) {
                 title="search or navigate"
                 onClick={model.activateSearch}
                 selected={
-                  rootModel.visibleDrawerWidget &&
-                  rootModel.visibleDrawerWidget.id === 'searchAndNav' &&
-                  rootModel.visibleDrawerWidget.target.id === model.id
+                  session.visibleDrawerWidget &&
+                  session.visibleDrawerWidget.id === 'searchAndNav' &&
+                  session.visibleDrawerWidget.target.id === model.id
                 }
                 value="search_and_nav"
                 data-testid="search_and_nav"
