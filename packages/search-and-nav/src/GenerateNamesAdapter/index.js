@@ -7,6 +7,7 @@ export const configSchema = ConfigurationSchema(
   {
     baseUrl: {
       type: 'string',
+      defaultValue: 'names/',
     },
   },
   { explicitlyTyped: true },

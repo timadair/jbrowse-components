@@ -3,6 +3,7 @@ import * as mst from 'mobx-state-tree'
 
 import RendererType from './pluggableElementTypes/renderers/RendererType'
 import AdapterType from './pluggableElementTypes/AdapterType'
+import NameStoreType from './pluggableElementTypes/NameStoreType'
 import TrackType from './pluggableElementTypes/TrackType'
 import ViewType from './pluggableElementTypes/ViewType'
 import DrawerWidgetType from './pluggableElementTypes/DrawerWidgetType'
@@ -46,6 +47,7 @@ export default class PluginManager {
     'renderer',
     'adapter',
     'track',
+    'name store',
     'connection',
     'view',
     'drawer widget',
@@ -60,6 +62,7 @@ export default class PluginManager {
     view: ViewType,
     'drawer widget': DrawerWidgetType,
     'menu bar': MenuBarType,
+    'name store': NameStoreType,
   }
 
   static lib = { 'mobx-state-tree': mst, React }
@@ -77,6 +80,7 @@ export default class PluginManager {
     this.addRendererType = this.addElementType.bind(this, 'renderer')
     this.addAdapterType = this.addElementType.bind(this, 'adapter')
     this.addTrackType = this.addElementType.bind(this, 'track')
+    this.addNameStoreType = this.addElementType.bind(this, 'name store')
     this.addViewType = this.addElementType.bind(this, 'view')
     this.addDrawerWidgetType = this.addElementType.bind(this, 'drawer widget')
     this.addMenuBarType = this.addElementType.bind(this, 'menu bar')
