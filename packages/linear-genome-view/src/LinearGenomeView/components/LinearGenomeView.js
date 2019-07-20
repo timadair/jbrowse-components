@@ -57,7 +57,6 @@ const styles = theme => ({
   },
   emphasis: {
     margin: theme.spacing(1),
-    background: '#dddd',
   },
 
   ...buttonStyles(theme),
@@ -84,8 +83,6 @@ function LinearGenomeView(props) {
     scaleBarHeight + tracks.reduce((a, b) => a + b.height + dragHandleHeight, 0)
   const style = {
     display: 'grid',
-    width: `${width}px`,
-    height: `${height}px`,
     position: 'relative',
     gridTemplateRows: `[header] auto [scale-bar] auto ${tracks
       .map(
@@ -124,14 +121,15 @@ function LinearGenomeView(props) {
             <Typography>{model.displayRegionsFromAssemblyName}</Typography>
           </div>
           <div className={classes.spacer} />
-          <Typography>Enter locstring</Typography>
           <form
             onSubmit={event => {
               navTo()
               event.preventDefault()
             }}
           >
+            <label for="navbox">Enter locstring</label>
             <input
+              id="navbox"
               className={classes.navbox}
               type="text"
               onChange={event => setLocstring(event.target.value)}
