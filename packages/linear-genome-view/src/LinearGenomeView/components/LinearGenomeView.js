@@ -1,10 +1,16 @@
-import { Icon, IconButton, withStyles } from '@material-ui/core'
+import {
+  Icon,
+  IconButton,
+  Typography,
+  TextField,
+  withStyles,
+} from '@material-ui/core'
 import { getSession } from '@gmod/jbrowse-core/util'
 import ToggleButton from '@material-ui/lab/ToggleButton'
 import classnames from 'classnames'
 import { observer, PropTypes } from 'mobx-react'
 import ReactPropTypes from 'prop-types'
-import React from 'react'
+import React, { useState } from 'react'
 
 import ScaleBar from './ScaleBar'
 import Rubberband from './Rubberband'
@@ -42,9 +48,16 @@ const styles = theme => ({
   trackControls: {
     whiteSpace: 'normal',
   },
-  zoomControls: {
-    position: 'absolute',
-    top: '0px',
+  zoomControls: {},
+  spacer: {
+    flexGrow: 1,
+  },
+  navbox: {
+    margin: theme.spacing(1),
+  },
+  emphasis: {
+    margin: theme.spacing(1),
+    background: '#dddd',
   },
 
   ...buttonStyles(theme),
@@ -74,7 +87,7 @@ function LinearGenomeView(props) {
     width: `${width}px`,
     height: `${height}px`,
     position: 'relative',
-    gridTemplateRows: `[scale-bar] auto ${tracks
+    gridTemplateRows: `[header] auto [scale-bar] auto ${tracks
       .map(
         t =>
           `[track-${t.id}] ${t.height}px [resize-${
@@ -84,6 +97,15 @@ function LinearGenomeView(props) {
       .join(' ')}`,
     gridTemplateColumns: `[controls] ${controlsWidth}px [blocks] auto`,
   }
+  const [locstring, setLocstring] = useState('')
+  const navTo = () => {
+    const [refSeq, rest = ''] = locstring.split(':')
+    const [start, end] = rest.split('..')
+    if (refSeq !== undefined && start !== undefined && end !== undefined) {
+      model.navTo({ refSeq, start, end })
+    }
+  }
+
   return (
     <div className={classes.root}>
       <div
@@ -91,6 +113,33 @@ function LinearGenomeView(props) {
         key={`view-${id}`}
         style={style}
       >
+        <div
+          className={classes.zoomControls}
+          style={{
+            gridArea: '1/1/auto/span 2',
+            display: 'flex',
+          }}
+        >
+          <div className={classes.emphasis}>
+            <Typography>{model.displayRegionsFromAssemblyName}</Typography>
+          </div>
+          <div className={classes.spacer} />
+          <Typography>Enter locstring</Typography>
+          <form
+            onSubmit={event => {
+              navTo()
+              event.preventDefault()
+            }}
+          >
+            <input
+              className={classes.navbox}
+              type="text"
+              onChange={event => setLocstring(event.target.value)}
+            />
+          </form>
+          <ZoomControls model={model} controlsHeight={scaleBarHeight} />
+          <div className={classes.spacer} />
+        </div>
         <div
           className={classnames(classes.controls, classes.viewControls)}
           style={{ gridRow: 'scale-bar' }}
@@ -147,6 +196,10 @@ function LinearGenomeView(props) {
           model={model}
         >
           <ScaleBar
+            style={{
+              gridColumn: 'blocks',
+              gridRow: 'scale-bar',
+            }}
             height={scaleBarHeight}
             bpPerPx={bpPerPx}
             blocks={staticBlocks}
@@ -156,15 +209,6 @@ function LinearGenomeView(props) {
           />
         </Rubberband>
 
-        <div
-          className={classes.zoomControls}
-          style={{
-            right: 4,
-            zIndex: 1000,
-          }}
-        >
-          <ZoomControls model={model} controlsHeight={scaleBarHeight} />
-        </div>
         {tracks.map(track => [
           <div
             className={classnames(classes.controls, classes.trackControls)}
