@@ -1,5 +1,6 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
-const electron = require('electron')
+import { app, ipcMain, shell, BrowserWindow, Menu } from 'electron'
+
 const debug = require('electron-debug')
 const isDev = require('electron-is-dev')
 const fs = require('fs')
@@ -19,8 +20,6 @@ const fsStat = promisify(fs.stat)
 const fsUnlink = promisify(fs.unlink)
 const fsWriteFile = promisify(fs.writeFile)
 
-const { app, ipcMain, shell, BrowserWindow, Menu } = electron
-
 debug({ showDevTools: false })
 
 const devServerUrl = url.parse(
@@ -37,7 +36,7 @@ try {
   else throw error
 }
 
-let mainWindow
+let mainWindow: BrowserWindow | null = null
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -46,7 +45,7 @@ function createWindow() {
     webPreferences: {
       preload: isDev
         ? path.join(app.getAppPath(), 'public', 'preload.js')
-        : `${path.join(app.getAppPath(), 'build', 'preload.js')}`,
+        : path.join(app.getAppPath(), 'build', 'preload.js'),
     },
   })
   mainWindow.loadURL(
@@ -61,32 +60,7 @@ function createWindow() {
 
   const isMac = process.platform === 'darwin'
 
-  const template = [
-    // { role: 'appMenu' }
-    ...(isMac
-      ? [
-          {
-            label: app.name,
-            submenu: [
-              { role: 'about' },
-              { type: 'separator' },
-              { role: 'services' },
-              { type: 'separator' },
-              { role: 'hide' },
-              { role: 'hideothers' },
-              { role: 'unhide' },
-              { type: 'separator' },
-              { role: 'quit' },
-            ],
-          },
-        ]
-      : []),
-    // { role: 'fileMenu' }
-    {
-      label: 'File',
-      submenu: [isMac ? { role: 'close' } : { role: 'quit' }],
-    },
-    // { role: 'editMenu' }
+  const template: Electron.MenuItemConstructorOptions[] = [
     {
       label: 'Edit',
       submenu: [
@@ -96,58 +70,33 @@ function createWindow() {
         { role: 'cut' },
         { role: 'copy' },
         { role: 'paste' },
-        ...(isMac
-          ? [
-              { role: 'pasteAndMatchStyle' },
-              { role: 'delete' },
-              { role: 'selectAll' },
-              { type: 'separator' },
-              {
-                label: 'Speech',
-                submenu: [{ role: 'startspeaking' }, { role: 'stopspeaking' }],
-              },
-            ]
-          : [{ role: 'delete' }, { type: 'separator' }, { role: 'selectAll' }]),
+        { role: 'pasteAndMatchStyle' },
+        { role: 'delete' },
+        { role: 'selectAll' },
       ],
     },
-    // { role: 'viewMenu' }
     {
       label: 'View',
       submenu: [
         { role: 'reload' },
-        { role: 'forcereload' },
-        { role: 'toggledevtools' },
+        { role: 'forceReload' },
+        { role: 'toggleDevTools' },
         { type: 'separator' },
-        { role: 'resetzoom' },
-        { role: 'zoomin' },
-        { role: 'zoomout' },
+        { role: 'resetZoom' },
+        { role: 'zoomIn' },
+        { role: 'zoomOut' },
         { type: 'separator' },
         { role: 'togglefullscreen' },
       ],
     },
-    // { role: 'windowMenu' }
-    {
-      label: 'Window',
-      submenu: [
-        { role: 'minimize' },
-        { role: 'zoom' },
-        ...(isMac
-          ? [
-              { type: 'separator' },
-              { role: 'front' },
-              { type: 'separator' },
-              { role: 'window' },
-            ]
-          : [{ role: 'close' }]),
-      ],
-    },
+    { role: 'window', submenu: [{ role: 'minimize' }, { role: 'close' }] },
     {
       role: 'help',
       submenu: [
         {
-          label: 'Learn More',
-          click: async () => {
-            await electron.shell.openExternal('https://jbrowse.org')
+          label: 'Homepage',
+          click() {
+            shell.openExternal('https://jbrowse.org')
           },
         },
       ],
@@ -188,7 +137,7 @@ ipcMain.on('createWindowWorker', event => {
       webSecurity: false,
       preload: isDev
         ? path.join(app.getAppPath(), 'public', 'preload.js')
-        : `${path.join(app.getAppPath(), 'build', 'preload.js')}`,
+        : path.join(app.getAppPath(), 'build', 'preload.js'),
     },
   })
   workerWindow.loadURL(
@@ -200,20 +149,32 @@ ipcMain.on('createWindowWorker', event => {
   event.returnValue = workerWindow.id
 })
 
-ipcMain.handle('getMainWindowId', async () => mainWindow.id)
+ipcMain.handle('getMainWindowId', async () => (mainWindow || {}).id)
 
 // merge function to get stuff from a development config into a production one
 // limited functionality, difficult to use existing merge-deep/mixin-deep type
 // things for this
-function mergeConfigs(A, B) {
-  const X = {}
-  const Y = {}
+interface Dataset {
+  assembly: {
+    name: string
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    [key: string]: any
+  }
+}
+interface Config {
+  savedSessions: unknown[]
+  datasets: Dataset[]
+}
+function mergeConfigs(A: Config, B: Config) {
+  const X: { [key: string]: Dataset } = {}
+  const Y: { [key: string]: Dataset } = {}
   A.datasets.forEach(a => {
     X[a.assembly.name] = a
   })
   B.datasets.forEach(b => {
     Y[b.assembly.name] = b
   })
+  A.savedSessions = (A.savedSessions || []).concat(B.savedSessions)
   return Object.values(merge(X, Y))
 }
 
@@ -265,8 +226,9 @@ ipcMain.handle('listSessions', async () => {
         sessionFilesData.push(fsStat(path.join(sessionDirectory, sessionFile)))
     }
     const data = await Promise.all(sessionFilesData)
-    const sessions = {}
-    sessionFiles.forEach((sessionFile, idx) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sessions: { [key: string]: any } = {}
+    sessionFiles.forEach((sessionFile: string, idx: number) => {
       if (path.extname(sessionFile) === '.thumbnail') {
         const sessionName = decodeURIComponent(
           path.basename(sessionFile, '.thumbnail'),
@@ -365,13 +327,13 @@ ipcMain.handle('deleteSession', async (event, sessionName) => {
 
 ipcMain.handle('fetch', async (event, ...args) => {
   const response = await fetch(...args)
-  const serializableResponse = {}
-  serializableResponse.headers = Array.from(response.headers)
-  serializableResponse.url = response.url
-  serializableResponse.status = response.status
-  serializableResponse.statusText = response.statusText
-  serializableResponse.buffer = await response.buffer()
-  return serializableResponse
+  return {
+    headers: Array.from(response.headers),
+    url: response.url,
+    status: response.status,
+    statusText: response.statusText,
+    buffer: await response.buffer(),
+  }
 })
 
 ipcMain.handle('read', async (event, ...args) => {
