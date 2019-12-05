@@ -6,5 +6,6 @@
 **/umd/**
 # TODO: decide whether or not to bring these up to eslint standards
 packages/jbrowse-web/scripts/**
+packages/jbrowse-desktop/public/electron.js
 /config/
 /packages/jbrowse-web/config/
