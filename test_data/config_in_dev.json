@@ -113,7 +113,8 @@
         ]
       },
       "renderer": {
-        "type": "SvgFeatureRenderer"
+        "type": "SvgFeatureRenderer",
+        "impliedUTRs": true
       }
     },
     {
