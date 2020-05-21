@@ -1,9 +1,15 @@
-import { types } from 'mobx-state-tree'
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { types, Instance } from 'mobx-state-tree'
 import { readConfObject } from '@gmod/jbrowse-core/configuration'
+import { AnyConfigurationModel } from '@gmod/jbrowse-core/configuration/configurationSchema'
+
+import PluginManager from '@gmod/jbrowse-core/PluginManager'
 import { getSession } from '@gmod/jbrowse-core/util'
 import { ElementId } from '@gmod/jbrowse-core/util/types/mst'
 
-export function generateHierarchy(trackConfigurations) {
+export function generateHierarchy(
+  trackConfigurations: AnyConfigurationModel[],
+) {
   const hierarchy = new Map()
 
   trackConfigurations.forEach(trackConf => {
@@ -20,8 +26,8 @@ export function generateHierarchy(trackConfigurations) {
   return hierarchy
 }
 
-export default pluginManager =>
-  types
+export default function stateModelFactory(pluginManager: PluginManager) {
+  return types
     .model('HierarchicalTrackSelectorDrawerWidget', {
       id: ElementId,
       type: types.literal('HierarchicalTrackSelectorDrawerWidget'),
@@ -32,27 +38,27 @@ export default pluginManager =>
       ),
     })
     .actions(self => ({
-      setView(view) {
+      setView(view: any) {
         self.view = view
       },
-      toggleCategory(pathName) {
+      toggleCategory(pathName: string) {
         self.collapsed.set(pathName, !self.collapsed.get(pathName))
       },
       clearFilterText() {
         self.filterText = ''
       },
-      setFilterText(newText) {
+      setFilterText(newText: string) {
         self.filterText = newText
       },
     }))
     .views(self => ({
-      trackConfigurations(assemblyName) {
+      trackConfigurations(assemblyName: string) {
         if (!self.view) return []
-        const session = getSession(self)
+        const session = getSession(self) as any
         const trackConfigurations = session.tracks
 
         const relevantTrackConfigurations = trackConfigurations.filter(
-          conf =>
+          (conf: AnyConfigurationModel) =>
             conf.viewType === self.view.type &&
             readConfObject(conf, 'assemblyNames').includes(assemblyName),
         )
@@ -63,43 +69,55 @@ export default pluginManager =>
         return self.view ? self.view.assemblyNames : []
       },
 
-      connectionTrackConfigurations(connection) {
+      connectionTrackConfigurations(connection: any) {
         if (!self.view) return []
         const trackConfigurations = connection.tracks
 
         const relevantTrackConfigurations = trackConfigurations.filter(
-          conf => conf.viewType === self.view.type,
+          (conf: AnyConfigurationModel) => conf.viewType === self.view.type,
         )
         return relevantTrackConfigurations
       },
 
-      hierarchy(assemblyName) {
-        return generateHierarchy(self.trackConfigurations(assemblyName))
+      hierarchy(assemblyName: string) {
+        return generateHierarchy(this.trackConfigurations(assemblyName))
       },
 
-      connectionHierarchy(connection) {
-        return generateHierarchy(self.connectionTrackConfigurations(connection))
+      connectionHierarchy(connection: any) {
+        return generateHierarchy(this.connectionTrackConfigurations(connection))
       },
 
       // This recursively gets tracks from lower paths
-      allTracksInCategoryPath(path, connection, assemblyName) {
+      allTracksInCategoryPath(
+        path: string[],
+        connection?: any,
+        assemblyName?: string,
+      ) {
         let currentHier = connection
-          ? self.connectionHierarchy(connection)
-          : self.hierarchy(assemblyName)
+          ? this.connectionHierarchy(connection)
+          : this.hierarchy(assemblyName as string)
         path.forEach(pathItem => {
           currentHier = currentHier.get(pathItem) || new Map()
         })
-        let tracks = {}
+        let tracks: { [key: string]: any } = {}
         currentHier.forEach((contents, name) => {
           if (contents.trackId) {
             tracks[contents.trackId] = contents
           } else {
             tracks = Object.assign(
               tracks,
-              self.allTracksInCategoryPath(path.concat([name])),
+              this.allTracksInCategoryPath(path.concat([name])),
             )
           }
         })
         return tracks
       },
     }))
+}
+
+export type HierarchicalTrackSelectorStateModel = ReturnType<
+  typeof stateModelFactory
+>
+export type HierarchicalTrackSelectorModel = Instance<
+  HierarchicalTrackSelectorStateModel
+>
