@@ -129,36 +129,33 @@ describe('valid file tests', () => {
 
   it('click and drag to move sideways', async () => {
     const pluginManager = getPluginManager()
-    const state = pluginManager.rootModel
     const { findByTestId } = render(<JBrowse pluginManager={pluginManager} />)
     fireEvent.click(await findByTestId('htsTrackEntry-volvox_alignments'))
-
-    const start = state.session.views[0].offsetPx
+    const locationBox = await findByTestId('locstringBox')
     const track = await findByTestId('track-volvox_alignments')
+    expect(locationBox.value).toBe('ctgA:101..140')
     fireEvent.mouseDown(track, { clientX: 250, clientY: 20 })
     fireEvent.mouseMove(track, { clientX: 100, clientY: 20 })
     fireEvent.mouseUp(track, { clientX: 100, clientY: 20 })
     // wait for requestAnimationFrame
     await wait(() => {})
-    const end = state.session.views[0].offsetPx
-    expect(end - start).toEqual(150)
+    expect(locationBox.value).toBe('ctgA:109..148')
   })
 
   it('click and drag to rubberBand', async () => {
     const pluginManager = getPluginManager()
-    const state = pluginManager.rootModel
     const { findByTestId, findByText } = render(
       <JBrowse pluginManager={pluginManager} />,
     )
     const track = await findByTestId('rubberBand_controls')
-
-    expect(state.session.views[0].bpPerPx).toEqual(0.05)
+    const locationBox = await findByTestId('locstringBox')
+    expect(locationBox.value).toBe('ctgA:101..140')
     fireEvent.mouseDown(track, { clientX: 100, clientY: 0 })
     fireEvent.mouseMove(track, { clientX: 250, clientY: 0 })
     fireEvent.mouseUp(track, { clientX: 250, clientY: 0 })
     const zoomMenuItem = await findByText('Zoom to region')
     fireEvent.click(zoomMenuItem)
-    expect(state.session.views[0].bpPerPx).toEqual(0.009375)
+    expect(locationBox.value).toBe('ctgA:106..113')
   })
 
   it('click and drag to reorder tracks', async () => {

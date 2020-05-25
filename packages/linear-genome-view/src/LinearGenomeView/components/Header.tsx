@@ -246,6 +246,7 @@ const Search = observer(({ model }: { model: LGV }) => {
       />
       <form onSubmit={onSubmit}>
         <TextField
+          data-testid="locstringBox"
           inputRef={inputRef}
           onFocus={onFocus}
           onBlur={onBlur}
@@ -263,7 +264,9 @@ const Search = observer(({ model }: { model: LGV }) => {
             },
           }}
           // eslint-disable-next-line react/jsx-no-duplicate-props
-          inputProps={{ style: { padding: theme.spacing() } }}
+          inputProps={{
+            style: { padding: theme.spacing() },
+          }}
         />
       </form>
       <div className={classes.bp}>
