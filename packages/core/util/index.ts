@@ -144,7 +144,7 @@ export function findParentThat(
   predicate: (thing: IAnyStateTreeNode) => boolean,
 ) {
   let currentNode: IAnyStateTreeNode | undefined = node
-  while (currentNode && isAlive(currentNode)) {
+  while (currentNode && isStateTreeNode(currentNode)) {
     if (predicate(currentNode)) return currentNode
     if (hasParent(currentNode)) currentNode = getParent(currentNode)
     else break
