@@ -29,9 +29,11 @@ const PlatformSpecificFatalErrorDialog = props => {
 
 ReactDOM.render(
   <ErrorBoundary FallbackComponent={PlatformSpecificFatalErrorDialog}>
-    <QueryParamProvider>
-      <Loader />
-    </QueryParamProvider>
+    <React.StrictMode>
+      <QueryParamProvider>
+        <Loader />
+      </QueryParamProvider>
+    </React.StrictMode>
   </ErrorBoundary>,
   document.getElementById('root'),
 )
