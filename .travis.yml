@@ -1,9 +1,9 @@
 language: node_js
 node_js: 14
-matrix:
+jobs:
   include:
-    - node: 10
-      if: branch = master
+    - {}
+    - env: FOO=foo
 cache:
 - node_modules
 - yarn
