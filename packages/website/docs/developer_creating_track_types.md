@@ -4,9 +4,8 @@ title: Creating custom track types
 ---
 
 At a high level the track types are just "ReactComponents" that contain
-rendered track contents. We generally implement a custom renderer if we want
-custom drawing logic, but here are some common reasons to make a custom track
-type
+rendered track contents. Oftentimes, for custom drawing, we create a renderer
+instead of a track, but here are some reasons you might want a custom track
 
 - Drawing custom things over the rendered content (e.g. drawing the Y-scale bar
   in the wiggle track)
@@ -14,8 +13,56 @@ type
   alignments track)
 - Adding custom drawer widgets (e.g. custom VariantFeatureDrawerWidget in
   variant track)
+- You want to bundle your renderer and adapter as a specific thing that is
+  automatically initialized rather than the BasicTrack (which combines any
+  adapter and renderer)
 
-A custom track is a combination of a "stateModel" and a "configSchema"
+### What does creating a track look like
+
+When you create your plugin, you will add a cCreating a custom track is
+basically looks like this
+
+You have your plugin class
+
+```js
+import { ConfigurationSchema } from '@gmod/jbrowse-core/configuration'
+
+const configSchema = ConfigurationSchema({})
+import { ConfigurationSchema } from '@gmod/jbrowse-core/configuration'
+import { BasicTrackConfig as LinearGenomeTrackConfig } from '@gmod/jbrowse-plugin-linear-genome-view'
+
+export default pluginManager => {
+  return ConfigurationSchema(
+    'MyTrack',
+    {
+      color: {
+        type: 'string',
+        description: 'the color to use on my special features',
+        defaultValue: 'green',
+      },
+    },
+    { baseConfiguration: LinearGenomeTrackConfig, explicitlyTyped: true },
+  )
+}
+
+export default class MyPlugin extends Plugin {
+  install(pluginManager) {
+    pluginManager.addTrackType(() => {
+      return new TrackType({
+        name: 'MyTrack',
+        compatibleView: 'LinearGenomeView', // this is the default
+        configSchema: myConfigSchema,
+        stateModel: myTrackModel,
+      })
+    })
+  }
+}
+```
+
+### What are the details of configSchema and stateModel
+
+- stateModel - a mobx-state-tree object that manages track logic
+- configSchema - a a combination of a "stateModel" and a "configSchema"
 
 The state model is often implemented as a composition of the "base track" and
 some custom logic
