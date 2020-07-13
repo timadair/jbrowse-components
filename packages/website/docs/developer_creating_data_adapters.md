@@ -141,9 +141,12 @@ interface Options {
 }
 ```
 
-- bpPerPx - number: resolution of the genome browser when the features were fetched
-- signal - can be used to abort a fetch request when it is no longer needed, from AbortController
-- statusCallback - not implemented yet but in the future may allow you to report the status of your loading operations
+- bpPerPx - number: resolution of the genome browser when the features were
+  fetched
+- signal - can be used to abort a fetch request when it is no longer needed,
+  from AbortController
+- statusCallback - not implemented yet but in the future may allow you to
+  report the status of your loading operations
 - headers - set of HTTP headers as a JSON object
 
 We return an rxjs Observable. This is similar to a JBrowse 1 getFeatures call,
@@ -151,7 +154,8 @@ where we pass each feature to a featureCallback, tell it when we are done with
 finishCallback, and send errors to errorCallback, except we do all those things
 with the Observable
 
-Here is a JBrowse 1 to JBrowse 2 migration for the getFeatures concepts
+Here is a "conversion" of JBrowse 1 getFeatures callbacks to JBrowse 2
+observable calls
 
 - `featureCallback(new SimpleFeature(...))` -> `observer.next(new SimpleFeature(...))`
 - `finishCallback()` -> `observer.complete()`

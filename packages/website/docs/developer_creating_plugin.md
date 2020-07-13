@@ -58,7 +58,6 @@ export const configSchema = ConfigurationSchema(
   { explicitlyTyped: true },
 )
 
-
 export class AdapterClass extends BaseFeatureDataAdapter {
   constructor(config) {
     super(config)
@@ -72,23 +71,27 @@ export class AdapterClass extends BaseFeatureDataAdapter {
       const base = readConfObject(this.config, 'baseUrl')
       const track = readConfObject(this.config, 'track')
       try {
-        const result = await fetch(`${base}/getData/track?` +
-           `genome=${assemblyName};track=${track};` +
-           `chrom=${refName};start=${start};end=${end}')
-        if(result.ok) {
+        const result = await fetch(
+          `${base}/getData/track?` +
+            `genome=${assemblyName};track=${track};` +
+            `chrom=${refName};start=${start};end=${end}`,
+        )
+        if (result.ok) {
           const data = await result.json()
           data[track].forEach(feature => {
-            observer.next(new SimpleFeature({
-              ...feature
-              start: feature.chromStart,
-              end: feature.chromEnd,
-              refName: feature.chrom,
-              uniqueId: ${stringify(feature)}
-            })
+            observer.next(
+              new SimpleFeature({
+                ...feature,
+                start: feature.chromStart,
+                end: feature.chromEnd,
+                refName: feature.chrom,
+                uniqueId: stringify(feature),
+              }),
+            )
           })
           observer.complete()
         }
-      } catch(e) {
+      } catch (e) {
         observer.error(e)
       }
     })
@@ -161,7 +164,7 @@ new plugin from scratch again
 
 src/index.js
 
-```
+```js
 import Plugin from '@gmod/jbrowse-core/Plugin'
 import { ArcRenderer, ReactComponent, configSchema } from './ArcRenderer'
 
@@ -181,16 +184,17 @@ export default class UCSCPlugin extends Plugin {
 
 src/ArcRenderer/index.js
 
-```
+```js
+// prettier-ignore
 import ServerSideRendererType
-  from '@gmod/jbrowse-core/pluggableElementTypes/renderers/ServerSideRendererType'
+    from '@gmod/jbrowse-core/pluggableElementTypes/renderers/ServerSideRendererType'
+
 import { PrerenderedCanvas } from '@gmod/jbrowse-core/ui'
 import { bpSpanPx } from '@gmod/jbrowse-core/util'
 import {
   createCanvas,
   createImageBitmap,
 } from '@gmod/jbrowse-core/util/offscreenCanvasPonyfill'
-
 
 // Our config schema for arc track will be basic, include just a color
 export const configSchema = ConfigurationSchema(
@@ -205,10 +209,9 @@ export const configSchema = ConfigurationSchema(
   { explicitlyTyped: true },
 )
 
-
 // This ReactComponent the so called "rendering" which is the component
 // that contains the contents of what was rendered.
-export const ReactComponent = (props) => {
+export const ReactComponent = props => {
   return (
     <div style={{ position: 'relative' }}>
       <PrerenderedCanvas {...props} />
@@ -225,31 +228,34 @@ export class ArcRenderer extends ServerSideRendererType {
     const canvas = createCanvas(width, height)
     const ctx = canvas.getContext('2d')
     const region = regions[0]
-    for(const feature of features.values) {
+    for (const feature of features.values) {
       const [left, right] = bpSpanPx(
         feature.get('start'),
         feature.get('end'),
         region,
-        bpPerPx
+        bpPerPx,
       )
-      ctx.beginPath();
+      ctx.beginPath()
       ctx.strokeStyle = readConfObject(config, 'color', [feature])
       ctx.lineWidth = 3
-      ctx.moveTo(left, 0);
-      ctx.bezierCurveTo(left, height/2, right, height/2, right, 0);
-      ctx.stroke();
+      ctx.moveTo(left, 0)
+      ctx.bezierCurveTo(left, height / 2, right, height / 2, right, 0)
+      ctx.stroke()
     }
     const imageData = await createImageBitmap(canvas)
-    const element = React.createElement(this.ReactComponent, {
-      ...renderProps,
-      width,
-      height,
-      imageData
-    }, null)
+    const element = React.createElement(
+      this.ReactComponent,
+      {
+        ...renderProps,
+        width,
+        height,
+        imageData,
+      },
+      null,
+    )
     return { element, imageData, width, height }
   }
 }
-
 ```
 
 The above code is relatively simple but it is fairly quirky. Here are some notes:

@@ -55,7 +55,7 @@ other browsers serialize the drawing commands to be drawn in the main thread
 
 The typical props that a renderer receives
 
-```ts
+```typescript
 export interface PileupRenderProps {
   features: Map<string, Feature>
   layout: { addRect: (featureId, leftBp, rightBp, height) => number }
@@ -75,39 +75,39 @@ render your data at
 The features argument is a map of feature ID to the feature itself. To iterate
 over the features Map, we can use an iterator or convert to an array
 
-`````js
+```js
 class MyRenderer extends ServerSideRendererType {
   render(props) {
-    const { features, width, height } = props;
+    const { features, width, height } = props
     // iterate over the ES6 map of features
     for (const feature in features.values()) {
       // render each feature to canvas or output SVG
     }
 
     // alternatively
-    const feats = Array.from(features.values());
-    feats.forEach((feat) => {});
+    const feats = Array.from(features.values())
+    feats.forEach(feat => {})
   }
 }
-
 ```
 
 ### Adding custom props to the renderer
 
 Note that track models themselves can extend this using their renderProps function
 
-For example the WiggleTrack has code similar to this
+For example the WiggleTrack has code similar to this, which adds a scaleOpts
+prop that gets passed to the renderer
 
-````js
+```js
 const model = types
   .compose(
-    "WiggleTrack",
+    'WiggleTrack',
     blockBasedTrack,
     types.model({
-      type: types.literal("WiggleTrack"),
-    })
+      type: types.literal('WiggleTrack'),
+    }),
   )
-  .views((self) => ({
+  .views(self => ({
     get renderProps() {
       return {
         ...self.composedRenderProps, // props that the blockBasedTrack adds,
@@ -115,13 +115,13 @@ const model = types
         scaleOpts: {
           domain: this.domain,
           stats: self.stats,
-          autoscaleType: getConf(self, "autoscale"),
-          scaleType: getConf(self, "scaleType"),
-          inverted: getConf(self, "inverted"),
+          autoscaleType: getConf(self, 'autoscale'),
+          scaleType: getConf(self, 'scaleType'),
+          inverted: getConf(self, 'inverted'),
         },
-      };
+      }
     },
-  }));
+  }))
 ```
 
 ### Rendering SVG
@@ -135,11 +135,11 @@ export default class SVGPlugin extends Plugin {
     pluginManager.addRendererType(
       () =>
         new BoxRendererType({
-          name: "SvgFeatureRenderer",
+          name: 'SvgFeatureRenderer',
           ReactComponent: SvgFeatureRendererReactComponent,
           configSchema: svgFeatureRendererConfigSchema,
-        })
-    );
+        }),
+    )
   }
 }
 ```
@@ -147,7 +147,7 @@ export default class SVGPlugin extends Plugin {
 Then, we have our Rendering component just be plain React code. This is a
 highly simplified SVG renderer just to illustrate
 
-```js
+```jsx
 export default function SvgFeatureRendering(props) {
   const { width, features, regions, layout, bpPerPx } = props
   const region = regions[0]
@@ -216,4 +216,3 @@ class HicRenderer extends ServerSideRendererType {
   }
 }
 ```
-`````

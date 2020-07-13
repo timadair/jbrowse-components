@@ -47,7 +47,7 @@ Here is a complete config.json file containing only a hg19
       "aliases": ["GRCh37"],
       "sequence": {
         "type": "ReferenceSequenceTrack",
-        "trackId": "Pd8Wh30ei9R",
+        "trackId": "hg19_config",
         "adapter": {
           "type": "BgzipFastaAdapter",
           "fastaLocation": {
@@ -101,7 +101,7 @@ Example config.json containing a track config
       "aliases": ["GRCh37"],
       "sequence": {
         "type": "ReferenceSequenceTrack",
-        "trackId": "Pd8Wh30ei9R",
+        "trackId": "hg19_config",
         "adapter": {
           "type": "BgzipFastaAdapter",
           "fastaLocation": {

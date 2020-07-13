@@ -22,41 +22,23 @@ instead of a track, but here are some reasons you might want a custom track
 When you create your plugin, you will add a cCreating a custom track is
 basically looks like this
 
-You have your plugin class
+You have your config schema
 
-```
-import { ConfigurationSchema } from '@gmod/jbrowse-core/configuration'
-
-const configSchema = ConfigurationSchema({})
+```js
 import { ConfigurationSchema } from '@gmod/jbrowse-core/configuration'
 import { BasicTrackConfig } from '@gmod/jbrowse-plugin-linear-genome-view'
 
-export default pluginManager => {
-  return ConfigurationSchema(
-    'MyTrack',
-    {
-      color: {
-        type: 'string',
-        description: 'the color to use on my special features',
-        defaultValue: 'green',
-      },
+const configSchema = ConfigurationSchema(
+  'MyTrack',
+  {
+    color: {
+      type: 'string',
+      description: 'the color to use on my special features',
+      defaultValue: 'green',
     },
-    { baseConfiguration: BasicTrackConfig, explicitlyTyped: true },
-  )
-}
-
-export default class MyPlugin extends Plugin {
-  install(pluginManager) {
-    pluginManager.addTrackType(() => {
-      return new TrackType({
-        name: 'MyTrack',
-        compatibleView: 'LinearGenomeView', // this is the default
-        configSchema: myConfigSchema,
-        stateModel: myTrackModel,
-      })
-    })
-  }
-}
+  },
+  { baseConfiguration: BasicTrackConfig, explicitlyTyped: true },
+)
 ```
 
 ### What are the details of configSchema and stateModel
@@ -68,20 +50,19 @@ The state model is often implemented as a composition of the "base track" and
 some custom logic
 
 ```js
-import {observer} from 'mobx-react'
-import {types} from 'mobx-state-tree'
+import { observer } from 'mobx-react'
+import { types } from 'mobx-state-tree'
 import { BlockBasedTrack } from '@gmod/jbrowse-plugin-linear-genome-view'
-
 
 // A component which changes color when you click on it
 // Note that this track is an observer, so it automatically re-renders
 // when something inside the track model changes e.g. model.hasTheBellRung
 const BackgroundChangeTrack = observer(props => {
-  const {model} = props
+  const { model } = props
   return (
     <div
-       style={{ backgroundColor: model.hasTheBellRung ? 'red' : 'green' }}
-       onClick={() => model.ringTheBell()}
+      style={{ backgroundColor: model.hasTheBellRung ? 'red' : 'green' }}
+      onClick={() => model.ringTheBell()}
     >
       <BlockBasedTrack {...props} />
     </div>
@@ -90,20 +71,95 @@ const BackgroundChangeTrack = observer(props => {
 
 // A track state model that implements the logic for changing the
 // background color on user click
-return types.compose('BackgroundChangeTrack',
+return types.compose(
+  'BackgroundChangeTrack',
   BaseTrack,
-  types.model({
-    hasTheBellRung: false
-  }).volatile(() => ({
-    ReactComponent: MyComponent
-  })).actions(self => ({
-    ringTheBell() {
-      self.hasTheBellRung = true
-    }
-  })
+  types
+    .model({
+      hasTheBellRung: false,
+    })
+    .volatile(() => ({
+      ReactComponent: MyComponent,
+    }))
+    .actions(self => ({
+      ringTheBell() {
+        self.hasTheBellRung = true
+      },
+    })),
 )
 ```
 
 This custom track type is fairly silly, but it shows us that our "track" can
 really be any React component that we want it to, and that we can control some
 logical state of the track by using mobx-state-tree
+
+### Putting it all together
+
+Here is a complete plugin that creates it's ReactComponent, configSchema,
+stateModel, and Plugin class in a single file. You are of course welcome to
+split things up into different files in your own plugins :)
+
+src/index.js
+
+```js
+import { observer } from 'mobx-react'
+import { types } from 'mobx-state-tree'
+import { BlockBasedTrack } from '@gmod/jbrowse-plugin-linear-genome-view'
+import { ConfigurationSchema } from '@gmod/jbrowse-core/configuration'
+import { BasicTrackConfig } from '@gmod/jbrowse-plugin-linear-genome-view'
+import Plugin from '@gmod/jbrowse-core/Plugin'
+
+const BackgroundChangeTrack = observer(props => {
+  const { model } = props
+  return (
+    <div
+      style={{ backgroundColor: model.hasTheBellRung ? 'red' : 'green' }}
+      onClick={() => model.ringTheBell()}
+    >
+      <BlockBasedTrack {...props} />
+    </div>
+  )
+})
+
+const stateModel = types.compose(
+  'BackgroundChangeTrack',
+  BaseTrack,
+  types
+    .model({
+      hasTheBellRung: false,
+    })
+    .volatile(() => ({
+      ReactComponent: MyComponent,
+    }))
+    .actions(self => ({
+      ringTheBell() {
+        self.hasTheBellRung = true
+      },
+    })),
+)
+
+const configSchema = ConfigurationSchema(
+  'MyTrack',
+  {
+    color: {
+      type: 'string',
+      description: 'the color to use on my special features',
+      defaultValue: 'green',
+    },
+  },
+  { baseConfiguration: BasicTrackConfig, explicitlyTyped: true },
+)
+
+export default class MyPlugin extends Plugin {
+  install(pluginManager) {
+    pluginManager.addTrackType(() => {
+      return new TrackType({
+        name: 'MyTrack',
+        compatibleView: 'LinearGenomeView', // this is the default
+        configSchema,
+        stateModel,
+      })
+    })
+  }
+}
+```

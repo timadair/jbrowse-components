@@ -95,7 +95,7 @@ arguments that are given to the callback are listed by the 'functionSignature'
 but must be provided by the calling code (the code reading the config slot). To
 pass arguments to the a callback we say
 
-```
+```js
 readConfObject(config, 'color', [feature])
 ```
 
