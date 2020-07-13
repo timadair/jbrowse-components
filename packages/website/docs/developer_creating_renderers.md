@@ -73,11 +73,30 @@ with contact matrices, so the Hi-C renderer has a custom getFeatures function
 
 ```
 
-### Renderer implementation notes
+### What are the props passed to the renderer
 
-Note: The features argument that the renderer typically get's is a `Map<string, Feature>`
+The typical props that a renderer receives
 
-To iterate over the features we can use the following
+```
+export interface PileupRenderProps {
+  features: Map<string, Feature>
+  layout: { addRect: (featureId, leftBp, rightBp, height) => number }
+  config: AnyConfigurationModel
+  regions: Region[]
+  bpPerPx: number
+  height: number
+  width: number
+  highResolutionScaling: number
+}
+
+```
+
+The layout is available on BoxRendererType renderers so that it can layout
+things in pileup format, and has an addRect function to get the y-coordinate to
+render your data at
+
+The features argument is a map of feature ID to the feature itself. To iterate
+over the features Map, we can use an iterator or convert to an array
 
     class MyRenderer extends ServerSideRendererType {
         render(props) {
@@ -93,12 +112,43 @@ To iterate over the features we can use the following
         }
     }
 
-### Alternative renderer
+### Adding custom props to the renderer
 
-A renderer does not necessarily have to be something that extends
-ServerSideRendererType or an existing renderer type. Our SVG renderer is an
-example, where it extends the existing built in renderer type with a custom
-ReactComponent only
+Note that track models themselves can extend this using their renderProps function
+
+For example the WiggleTrack has code similar to this
+
+```
+const model = types
+  .compose(
+    "WiggleTrack",
+    blockBasedTrack,
+    types.model({
+      type: types.literal("WiggleTrack"),
+    })
+  )
+  .views((self) => ({
+    get renderProps() {
+      return {
+        ...self.composedRenderProps, // props that the blockBasedTrack adds,
+        ...getParentRenderProps(self), // props that the view wants to add,
+        scaleOpts: {
+          domain: this.domain,
+          stats: self.stats,
+          autoscaleType: getConf(self, "autoscale"),
+          scaleType: getConf(self, "scaleType"),
+          inverted: getConf(self, "inverted"),
+        },
+      };
+    },
+  }));
+
+```
+
+### Rendering SVG
+
+Our SVG renderer is an example, where it extends the existing built in renderer
+type with a custom ReactComponent only
 
 ```
 export default class SVGPlugin extends Plugin {
