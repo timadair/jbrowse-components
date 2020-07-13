@@ -75,14 +75,87 @@ with contact matrices, so the Hi-C renderer has a custom getFeatures function
 
 ### Renderer implementation notes
 
-Note: The features argument that the renderer typically get's is a Map<string,
-Feature>
+Note: The features argument that the renderer typically get's is a `Map<string, Feature>`
+
+To iterate over the features we can use the following
 
     class MyRenderer extends ServerSideRendererType {
         render(props) {
             const {features, width, height} = props
+            // iterate over the ES6 map of features
             for(const feature in features.values()) {
-                // iterate over the ES6 map of features
+                // render each feature to canvas or output SVG
             }
+
+            // alternatively
+            const feats = Array.from(features.values())
+            feats.forEach(feat => {})
         }
     }
+
+### Alternative renderer
+
+A renderer does not necessarily have to be something that extends
+ServerSideRendererType or an existing renderer type. Our SVG renderer is an
+example, where it extends the existing built in renderer type with a custom
+ReactComponent only
+
+```
+export default class SVGPlugin extends Plugin {
+  install(pluginManager: PluginManager) {
+    pluginManager.addRendererType(
+      () =>
+        new BoxRendererType({
+          name: 'SvgFeatureRenderer',
+          ReactComponent: SvgFeatureRendererReactComponent,
+          configSchema: svgFeatureRendererConfigSchema,
+        }),
+    )
+  }
+}
+```
+
+Then, we have our Rendering component just be plain React code. This is a
+highly simplified SVG renderer just to illustrate
+
+```
+
+export default function SvgFeatureRendering(props) {
+  const { width, features, regions, layout, bpPerPx } = props
+  const region = regions[0]
+
+  const feats = Array.from(features.values())
+  const height = readConfObject(config, 'height', [feature])
+  return (
+    <svg>
+      {feats.map((feature) => {
+        // our layout determines at what y-coordinate to
+        // plot our feature, given all the other features
+        const top = layout.addRect(
+          feature.id(),
+          feature.get('start'),
+          feature.get('end'),
+          height
+        )
+        const [left, right] = bpSpanPx(
+          feature.get('start'),
+          feature.get('end'),
+          region,
+          bpPerPx
+        )
+        return <rect x={left} y={top} height={height} width={right - left} />
+      })}
+    </svg>
+  )
+}
+```
+
+Notes:
+
+- The above SVG renderer is highly simplified but serves an example, but it
+  shows that you can have a simple React component that leverages the existing
+  BoxRendererType, so that you do not have to necessarily create your own
+  renderer class
+- The renderers receive an array of regions to render, but if they are only
+  equipped to handle one region at a time then they can select only rendering
+  to regions[0]

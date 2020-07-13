@@ -24,12 +24,12 @@ basically looks like this
 
 You have your plugin class
 
-```js
+```
 import { ConfigurationSchema } from '@gmod/jbrowse-core/configuration'
 
 const configSchema = ConfigurationSchema({})
 import { ConfigurationSchema } from '@gmod/jbrowse-core/configuration'
-import { BasicTrackConfig as LinearGenomeTrackConfig } from '@gmod/jbrowse-plugin-linear-genome-view'
+import { BasicTrackConfig } from '@gmod/jbrowse-plugin-linear-genome-view'
 
 export default pluginManager => {
   return ConfigurationSchema(
@@ -41,7 +41,7 @@ export default pluginManager => {
         defaultValue: 'green',
       },
     },
-    { baseConfiguration: LinearGenomeTrackConfig, explicitlyTyped: true },
+    { baseConfiguration: BasicTrackConfig, explicitlyTyped: true },
   )
 }
 
@@ -70,7 +70,7 @@ some custom logic
 ```js
 import {observer} from 'mobx-react'
 import {types} from 'mobx-state-tree'
-import BlockBasedTrack from '@gmod/jbrowse-plugin-linear-genome-view/src/BasicTrack/components/BlockBasedTrack'
+import { BlockBasedTrack } from '@gmod/jbrowse-plugin-linear-genome-view'
 
 
 // A component which changes color when you click on it
