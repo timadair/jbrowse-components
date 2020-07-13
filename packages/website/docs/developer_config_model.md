@@ -129,7 +129,7 @@ callback for color, it might look like this
   "renderers": {
     "SvgFeatureRenderer": {
       "type": "SvgFeatureRenderer",
-      "color": "function(feature) { return feature.get('type')==='SNV'?'green':'purple' }"
+      "color": "function(feat) { return feat.get('type')==='SNV'?'green':'purple' }"
     }
   }
 }
