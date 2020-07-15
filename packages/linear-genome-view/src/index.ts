@@ -1,7 +1,7 @@
 import PluginManager from '@gmod/jbrowse-core/PluginManager'
 import TrackType from '@gmod/jbrowse-core/pluggableElementTypes/TrackType'
 import ViewType from '@gmod/jbrowse-core/pluggableElementTypes/ViewType'
-import WidgetType from '@gmod/jbrowse-core/pluggableElementTypes/DrawerWidgetType'
+import WidgetType from '@gmod/jbrowse-core/pluggableElementTypes/WidgetType'
 import Plugin from '@gmod/jbrowse-core/Plugin'
 import LineStyleIcon from '@material-ui/icons/LineStyle'
 import { lazy } from 'react'
@@ -80,7 +80,7 @@ export default class LinearGenomeViewPlugin extends Plugin {
           heading: 'Feature Details',
           configSchema: baseFeatureWidgetConfigSchema,
           stateModel: baseFeatureWidgetStateModel,
-          LazyReactComponent: lazy(() => baseFeatureWidgetReactComponent },
+          LazyReactComponent: lazy(() => baseFeatureWidgetReactComponent),
         }),
     )
   }
