@@ -1,7 +1,7 @@
 import PluginManager from '@gmod/jbrowse-core/PluginManager'
 import TrackType from '@gmod/jbrowse-core/pluggableElementTypes/TrackType'
 import ViewType from '@gmod/jbrowse-core/pluggableElementTypes/ViewType'
-import WidgetType from '@gmod/jbrowse-core/pluggableElementTypes/WidgetType'
+import WidgetType from '@gmod/jbrowse-core/pluggableElementTypes/DrawerWidgetType'
 import Plugin from '@gmod/jbrowse-core/Plugin'
 import LineStyleIcon from '@material-ui/icons/LineStyle'
 import { lazy } from 'react'
@@ -28,7 +28,22 @@ import {
   stateModelFactory as linearGenomeViewStateModelFactory,
 } from './LinearGenomeView'
 
-export default class extends Plugin {
+import BaseTrack, { BaseTrackConfig } from './BasicTrack/baseTrackModel'
+import blockBasedTrackModel from './BasicTrack/blockBasedTrackModel'
+import BlockBasedTrack from './BasicTrack/components/BlockBasedTrack'
+
+export default class LinearGenomeViewPlugin extends Plugin {
+  name = 'LinearGenomeViewPlugin'
+
+  exports = {
+    BaseTrack,
+    BaseTrackConfig,
+    blockBasedTrackModel,
+    BlockBasedTrack,
+    basicTrackConfigSchemaFactory,
+    basicTrackStateModelFactory,
+  }
+
   install(pluginManager: PluginManager) {
     pluginManager.addTrackType(() => {
       const configSchema = basicTrackConfigSchemaFactory(pluginManager)
@@ -65,7 +80,7 @@ export default class extends Plugin {
           heading: 'Feature Details',
           configSchema: baseFeatureWidgetConfigSchema,
           stateModel: baseFeatureWidgetStateModel,
-          LazyReactComponent: lazy(() => baseFeatureWidgetReactComponent),
+          LazyReactComponent: lazy(() => baseFeatureWidgetReactComponent },
         }),
     )
   }
@@ -84,9 +99,10 @@ export default class extends Plugin {
 }
 
 export {
-  default as BaseTrack,
+  BaseTrack,
   BaseTrackConfig,
-} from './BasicTrack/baseTrackModel'
-export { default as blockBasedTrackModel } from './BasicTrack/blockBasedTrackModel'
-export { default as BlockBasedTrack } from './BasicTrack/components/BlockBasedTrack'
-export { basicTrackConfigSchemaFactory, basicTrackStateModelFactory }
+  blockBasedTrackModel,
+  BlockBasedTrack,
+  basicTrackConfigSchemaFactory,
+  basicTrackStateModelFactory,
+}
