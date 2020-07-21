@@ -2,6 +2,7 @@ import Paper from '@material-ui/core/Paper'
 import { observer, PropTypes as MobxPropTypes } from 'mobx-react'
 import PropTypes from 'prop-types'
 import React, { FunctionComponent } from 'react'
+import copy from 'copy-to-clipboard'
 import {
   BaseFeatureDetails,
   BaseCard,
@@ -51,7 +52,23 @@ const AlignmentFeatureDetails: FunctionComponent<AlnInputProps> = props => {
   const feat = JSON.parse(JSON.stringify(model.featureData))
   return (
     <Paper data-testid="alignment-side-drawer">
-      <BaseFeatureDetails {...props} />
+      <BaseFeatureDetails
+        {...props}
+        omit={flags}
+        formatter={(value: string) => {
+          if (String(value).length > 100) {
+            return (
+              <>
+                <button type="button" onClick={() => copy(value)}>
+                  Copy
+                </button>
+                <div>{`${value.slice(0, 100)}...`}</div>
+              </>
+            )
+          }
+          return <div>{value}</div>
+        }}
+      />
       <AlignmentFlags feature={feat} {...props} />
     </Paper>
   )
