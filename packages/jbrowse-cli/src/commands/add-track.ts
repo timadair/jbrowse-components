@@ -40,14 +40,14 @@ export default class AddTrack extends Command {
 
   static args = [
     {
-      name: 'dataDirectory',
+      name: 'track',
       required: true,
-      description: `Data directory file or URL`,
+      description: `Track file or URL`,
     },
     {
       name: 'location',
       required: false,
-      description: `location of JBrowse 2 installation. Defaults to .`,
+      description: `Location of JBrowse 2 installation. Defaults to .`,
       default: '.',
     },
   ]
@@ -55,7 +55,7 @@ export default class AddTrack extends Command {
   static flags = {
     type: flags.string({
       char: 't',
-      description: `type of track, by default inferred from track file`,
+      description: `Type of track, by default inferred from track file`,
     }),
     name: flags.string({
       char: 'n',
@@ -86,7 +86,7 @@ export default class AddTrack extends Command {
     help: flags.help({ char: 'h' }),
     trackId: flags.string({
       description:
-        'Id for the track, by default inferred from filename, must be unique to JBrowse config',
+        'trackId for the track, by default inferred from filename, must be unique throughout config',
     }),
     load: flags.string({
       char: 'l',
@@ -96,10 +96,10 @@ export default class AddTrack extends Command {
     }),
     skipCheck: flags.boolean({
       description:
-        "Don't check whether or not the file or URL exists or if you are in a JBrowse directory",
+        'Skip check for whether or not the file or URL exists or if you are in a JBrowse directory',
     }),
     overwrite: flags.boolean({
-      description: 'Overwrites any existing tracks if same track id',
+      description: 'Overwrites existing track if it shares the same trackId',
     }),
     force: flags.boolean({
       char: 'f',
