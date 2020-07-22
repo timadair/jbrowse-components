@@ -1,4 +1,5 @@
 import AppBar from '@material-ui/core/AppBar'
+import CircularProgress from '@material-ui/core/CircularProgress'
 import { makeStyles } from '@material-ui/core/styles'
 import Toolbar from '@material-ui/core/Toolbar'
 import Tooltip from '@material-ui/core/Tooltip'
@@ -10,6 +11,8 @@ import EditableTypography from './EditableTypography'
 import LogoFull from './LogoFull'
 import Snackbar from './Snackbar'
 import ViewContainer from './ViewContainer'
+
+const LazyWrapper = React.lazy(() => import('./LazyWrapper'))
 
 const useStyles = makeStyles(theme => ({
   '@global': {
@@ -52,6 +55,9 @@ const useStyles = makeStyles(theme => ({
   inputFocused: {
     borderColor: theme.palette.secondary.main,
     backgroundColor: theme.palette.primary.light,
+  },
+  viewLoading: {
+    margin: theme.spacing(2),
   },
 }))
 
@@ -129,11 +135,20 @@ function App({ session }) {
                 view={view}
                 onClose={() => session.removeView(view)}
               >
-                <ReactComponent
-                  model={view}
-                  session={session}
-                  getTrackType={pluginManager.getTrackType}
-                />
+                <React.Suspense
+                  fallback={
+                    <CircularProgress
+                      disableShrink
+                      className={classes.viewLoading}
+                    />
+                  }
+                >
+                  <LazyWrapper
+                    ReactComponent={ReactComponent}
+                    model={view}
+                    session={session}
+                  />
+                </React.Suspense>
               </ViewContainer>
             )
           })}

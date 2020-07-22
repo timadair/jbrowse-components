@@ -1,5 +1,6 @@
 import Typography from '@material-ui/core/Typography'
 import AppBar from '@material-ui/core/AppBar'
+import CircularProgress from '@material-ui/core/CircularProgress'
 import IconButton from '@material-ui/core/IconButton'
 import Toolbar from '@material-ui/core/Toolbar'
 import { makeStyles } from '@material-ui/core/styles'
@@ -8,6 +9,8 @@ import CloseIcon from '@material-ui/icons/Close'
 import { observer, PropTypes } from 'mobx-react'
 import React from 'react'
 import Drawer from './Drawer'
+
+const LazyWidgetWrapper = React.lazy(() => import('./LazyWrapper'))
 
 const useStyles = makeStyles(theme => ({
   defaultDrawer: {},
@@ -74,7 +77,17 @@ const DrawerWidget = observer(props => {
             </IconButton>
           </Toolbar>
         </AppBar>
-        <ReactComponent model={visibleWidget} session={session} />
+        <React.Suspense
+          fallback={
+            <CircularProgress disableShrink className={classes.drawerLoading} />
+          }
+        >
+          <LazyWidgetWrapper
+            ReactComponent={ReactComponent}
+            model={visibleWidget}
+            session={session}
+          />
+        </React.Suspense>
       </div>
     </Drawer>
   )
